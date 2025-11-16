@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class WASDMovementScript : MonoBehaviour
 {
@@ -22,10 +23,30 @@ public class WASDMovementScript : MonoBehaviour
     public float velocity;
     public float maxDistance = 4.66f;
 
+
     public bool isGrounded;
     public LayerMask floorMask;
+    public LayerMask wallMask;
     public Ray groundedRay;
+
     RaycastHit hit;
+
+    //StaminaUI Variables
+
+    public Image staminaBar;
+
+    public float stamina, maxStamina;
+
+    public float sprintCost;
+
+    public float rechargeRate;
+
+    public bool sprinting;
+
+    private Coroutine staminaRecharge;
+
+    public float walkSpeed, sprintSpeed;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -39,7 +60,6 @@ public class WASDMovementScript : MonoBehaviour
 
         isGrounded = (Physics.Raycast(groundedRay, out hit, maxDistance, floorMask));
        
-
 
 
         velocity += Physics.gravity.y * gravityScale * Time.deltaTime;//downward force using gravity scale 
@@ -59,6 +79,7 @@ public class WASDMovementScript : MonoBehaviour
         {
             transform.position = hit.point + new Vector3(0, maxDistance, 0);
         }
+
 
         //grounded checks for animator
         if (isGrounded)
@@ -107,9 +128,11 @@ public class WASDMovementScript : MonoBehaviour
 
         //Vector3 moveDirection = new Vector3(xDirection, 0.0f, zDirection);
 
-        transform.position += moveDirection * speed;//movement
-
-        if (moveDirection != Vector3.zero)
+        if (!jumpAnimatorScript.currentlyJumping)//if not jumping
+        {
+            transform.position += moveDirection * speed;//movement
+        }
+        if (moveDirection != Vector3.zero && !jumpAnimatorScript.currentlyJumping)
         {
             transform.rotation = Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(moveDirection), rotationSpeed * Time.deltaTime);
             legAnimator.SetBool("IsMoving", true);
@@ -118,19 +141,64 @@ public class WASDMovementScript : MonoBehaviour
         {
             legAnimator.SetBool("IsMoving", false);
         }
-        
 
-        if (Input.GetKeyDown(KeyCode.LeftShift))//sprint
+
+
+
+        if (Input.GetKey(KeyCode.LeftShift) && stamina > 0)
         {
-            speed += speed;
-            legAnimator.SetFloat("Speed", speedMultiplier);
+            sprinting = true;
+
+
         }
 
-        if (Input.GetKeyUp(KeyCode.LeftShift))//normal speed
+        if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            speed -= speed * 0.5f;
+            sprinting = false;
+
+
+        }
+        if (stamina <= 0)
+        {
+            sprinting = false;
+        }
+
+
+        if (sprinting)
+        {
+            Debug.Log("Sprint Initiated");
+
+            speed = sprintSpeed;
+            legAnimator.SetFloat("Speed", speedMultiplier);
+
+            stamina -= sprintCost * Time.deltaTime;//stamina is drained by the sprintcost every second
+            if (stamina < 0) stamina = 0;
+            staminaBar.fillAmount = stamina / maxStamina;//the bar fill is the stamina divided by the max stamina amount
+
+            if (staminaRecharge != null) StopCoroutine(staminaRecharge);//stop stamina recharge
+            staminaRecharge = StartCoroutine(RechargeStamina());//start stamina recharge
+        }
+        else 
+        {
+            speed = walkSpeed;
             legAnimator.SetFloat("Speed", 1f);
         }
 
     }
+
+
+    private IEnumerator RechargeStamina()
+    {
+        yield return new WaitForSeconds(1f);
+
+        while (stamina < maxStamina)//while the stamina is less than the max stamina, do the stamina recharging code
+        {
+            stamina += rechargeRate / 10f;
+            if(stamina > maxStamina) stamina = maxStamina;
+            staminaBar.fillAmount = stamina / maxStamina;
+            yield return new WaitForSeconds(.1f);
+        }
+    
+    }
+
 }

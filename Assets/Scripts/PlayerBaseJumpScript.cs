@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerBaseJumpScript : MonoBehaviour
 {
@@ -9,21 +10,44 @@ public class PlayerBaseJumpScript : MonoBehaviour
 
     public WASDMovementScript wasdMovementScript;
 
+    public Image cooldownBar;
+
+    public float cooldown, maxCooldown;
+
+    public float cooldownCost;
+
+    public float rechargeRate;
+
+    public bool currentlyJumping;
+
+    private Coroutine jumpRecharge;
+
     // Start is called before the first frame update
     void Start()
     {
         //Start the coroutine we define below named ExampleCoroutine.
         //StartCoroutine(ExampleCoroutine());
+        currentlyJumping = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && !currentlyJumping && cooldown >=300)
         {
 
             StartCoroutine(ExampleCoroutine());
             Debug.Log("Space is pressed");
+            currentlyJumping = true;
+            cooldown -= cooldownCost;
+            cooldownBar.fillAmount = cooldown / maxCooldown;
+        }
+
+        if (currentlyJumping)
+        {
+
+            if (jumpRecharge != null) StopCoroutine(jumpRecharge);//stop jump recharge
+            jumpRecharge = StartCoroutine(RechargeStamina());//start jump recharge
         }
     }
 
@@ -53,7 +77,7 @@ public class PlayerBaseJumpScript : MonoBehaviour
     public void JumpFinished()
     {
         legAnimator.SetBool("IsJumpLanding", false);
-
+        currentlyJumping = false;
     }
 
     public IEnumerator ExampleCoroutine()
@@ -85,5 +109,20 @@ public IEnumerator JumpLandedCoroutine()
 
         Debug.Log("Landing Finished : " + Time.time);
         JumpFinished();
+    }
+
+
+    private IEnumerator RechargeStamina()
+    {
+        yield return new WaitForSeconds(1f);
+
+        while (cooldown < maxCooldown)//while the stamina is less than the max stamina, do the stamina recharging code
+        {
+            cooldown += rechargeRate / 10f;
+            if (cooldown > maxCooldown) cooldown = maxCooldown;
+            cooldownBar.fillAmount = cooldown / maxCooldown;
+            yield return new WaitForSeconds(.1f);
+        }
+
     }
 }
