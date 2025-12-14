@@ -112,14 +112,14 @@ namespace gun
             if (Physics.Raycast(firePoint.position, direction, out hit, 100)) //if the raycast sent hits something within 100 units do the next lines of code
             {
                 Debug.Log("Shot with target"); //debug for clarification
-                Debug.DrawRay(firePoint.position, direction * hit.distance, Color.yellow);//draws a ray that can be scene within the editing scene between firepoint and hitpoint
+                Debug.DrawRay(firePoint.position, direction * hit.distance, Color.cyan);//draws a ray that can be scene within the editing scene between firepoint and hitpoint
 
                 GameObject currentBullet = Instantiate(bullet, firePoint.position, Quaternion.identity); //currentbullet variable added to allow for access to the instantiations
                 currentBullet.GetComponent<Rigidbody>().AddForce(direction * shootForce, ForceMode.Impulse); //applying the shootforce to the bullet in a forward direction
-                Destroy(currentBullet, 6f); //destroy the instantiated bullet after 6 seconds
+                Destroy(currentBullet, 4f); //destroy the instantiated bullet after 6 seconds
 
-                var currentFireEffect = Instantiate(fireEffect, firePoint.position, firePoint.rotation);//Instantiates an effect at the hitpoint position
-                Destroy(currentFireEffect, 2f); //destroys the effect after 2 seconds
+                //var currentFireEffect = Instantiate(fireEffect, firePoint.position, firePoint.rotation);//Instantiates an effect at the hitpoint position
+                //Destroy(currentFireEffect, 2f); //destroys the effect after 2 seconds
                 //Instantiate(hitPointEffect, hit.point, Quaternion.identity);
 
             }
@@ -131,10 +131,10 @@ namespace gun
 
                 GameObject currentBullet = Instantiate(bullet, firePoint.position, Quaternion.identity); //currentbullet variable added to allow for access to the instantiations
                 currentBullet.GetComponent<Rigidbody>().AddForce(direction * shootForce, ForceMode.Impulse); //applying the shootforce to the bullet in a forward direction
-                Destroy(currentBullet, 6f); //destroy the instantiated bullet after 6 seconds
+                Destroy(currentBullet, 4f); //destroy the instantiated bullet after 6 seconds
 
-                var currentFireEffect = Instantiate(fireEffect, firePoint.position, firePoint.rotation);//Instantiates an effect at the hitpoint position
-                Destroy(currentFireEffect, 2f); //destroys the effect after 2 seconds
+                //var currentFireEffect = Instantiate(fireEffect, firePoint.position, firePoint.rotation);//Instantiates an effect at the hitpoint position
+                //Destroy(currentFireEffect, 2f); //destroys the effect after 2 seconds
                 //Instantiate(hitPointEffect, hit.point, Quaternion.identity);
 
             }

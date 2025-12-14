@@ -1,11 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using enemy;
 using UnityEngine;
 
 public class BulletScript : MonoBehaviour
 {
-    public BaseEnemyScript enemyScript;
+    public float bulletDamage;
+    public BaseFloorEnemyScript baseFloorEnemyScript;
+    public BaseEnemyHealthScript enemyScript;
     public GameObject enemyObject;
+
 
 
 
@@ -26,13 +30,21 @@ public class BulletScript : MonoBehaviour
         if (collision.gameObject.CompareTag("EnemyTag"))
         {
             enemyObject = collision.gameObject;
-            enemyScript = enemyObject.GetComponent<BaseEnemyScript>();
-            enemyScript.TakeDamage();
+            enemyScript = enemyObject.GetComponent<BaseEnemyHealthScript>();
+            enemyScript.TakeDamage(bulletDamage);
             Debug.Log("Bullet Hit Enemy");
+
+            
+            //baseFloorEnemyScript = enemyObject.GetComponent<BaseFloorEnemyScript>();
+            //baseFloorEnemyScript.TakeDamage(bulletDamage);
+            //Debug.Log("Bullet Hit Floor Enemy");
+            
 
             Destroy(gameObject);
 
         }
+
+
 
 
     }
